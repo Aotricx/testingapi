@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Verse of the Day</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Georgia, serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+        }
+        .verse-widget {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .verse-text {
+            font-size: 16px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .verse-reference {
+            font-size: 14px;
+            font-style: italic;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="verse-widget">
+        <div class="verse-text" id="verse">Loading...</div>
+        <div class="verse-reference" id="reference"></div>
+    </div>
+
+    <script>
+        const API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your actual API key
+        const BIBLE_ID = '9879dbb7cfe39e4d-01'; // English Standard Version (ESV)
+
+        async function getVerseOfTheDay() {
+            try {
+                // Get a random verse
+                const response = await fetch(`https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/verses/random`, {
+                    headers: {
+                        'api-key': API_KEY
+                    }
+                });
+                const data = await response.json();
+
+                // Fetch the content of the verse
+                const verseId = data.data.id;
+                const contentResponse = await fetch(`https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/verses/${verseId}?content-type=text`, {
+                    headers: {
+                        'api-key': API_KEY
+                    }
+                });
+                const contentData = await contentResponse.json();
+
+                document.getElementById('verse').textContent = `"${contentData.data.content}"`;
+                document.getElementById('reference').textContent = `${data.data.reference}`;
+            } catch (error) {
+                console.error('Error fetching verse:', error);
+                document.getElementById('verse').textContent = 'Failed to load verse. Please try again later.';
+            }
+        }
+
+        getVerseOfTheDay();
+        // Update verse daily
+        setInterval(getVerseOfTheDay, 24 * 60 * 60 * 1000);
+    </script>
+</body>
+</html>
